@@ -4,7 +4,7 @@ import linkedinLogoButton from '../../assets/images/sign-up&in form/linkedin-log
 import { Link } from 'react-router-dom'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../../firebase/FirebaseAuth'
+import { auth } from '../../firebase/Firebase'
 import { useNavigate } from 'react-router-dom'
 
 export const FormLogIn = () => {
@@ -26,7 +26,7 @@ export const FormLogIn = () => {
         // Signed in
         const user = userCredential.user
         console.log(user)
-         navigate('/sign-up/confirmation-page',{replace:true})
+        navigate('/sign-up/confirmation-page', { replace: true })
       })
       .catch((error: { code: string; message: string }) => {
         const errorCode = error.code
@@ -40,8 +40,12 @@ export const FormLogIn = () => {
     <>
       <header>
         <nav>
-          <Link to='/sign-up' replace><h1>REGISTER</h1></Link>
-          <Link to='/sign-up/login' replace><h1>LOG IN</h1></Link>
+          <Link to='/sign-up' replace>
+            <h1>REGISTER</h1>
+          </Link>
+          <Link to='/sign-up/login' replace>
+            <h1>LOG IN</h1>
+          </Link>
         </nav>
         <h1>Welcome back</h1>
       </header>

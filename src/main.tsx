@@ -34,10 +34,11 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <FeedMain /> },
       {
-        path: 'create-blog-post', element: <BlogPostCreator />
-    },
-    ]
-  }
+        path: 'create-blog-post',
+        element: <BlogPostCreator />,
+      },
+    ],
+  },
 ])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

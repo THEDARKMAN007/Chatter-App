@@ -11,8 +11,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
 //firebase auth
-import { createUserWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,AuthError, UserCredential } from 'firebase/auth'
-import { auth } from '../../firebase/FirebaseAuth'
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  signInWithPopup,
+  AuthError,
+  UserCredential,
+} from 'firebase/auth'
+import { auth } from '../../firebase/Firebase'
 
 export const FormRegister = () => {
   ////TYPE
@@ -30,6 +37,7 @@ export const FormRegister = () => {
     confirmPassword: string
   }
 
+  //implementing react-hook-forms
   const {
     register,
     handleSubmit,
@@ -37,35 +45,75 @@ export const FormRegister = () => {
   } = useForm<Inputs>()
   const navigate = useNavigate()
 
-
-////AUTHENTICATION METHODS
-  //implementing google provider signup
-  const googleSignIn = () => {
-  const provider = new GoogleAuthProvider()
-  // provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-    auth.languageCode = 'it'
+//AUTHENTICATION METHODS
+  //implementing facebook provider sign-up {facebook enforces https}
+  const facebookSignIn = () => {
+    const provider = new FacebookAuthProvider();
+    provider.addScope('user_birthday');
+    auth.languageCode = 'it';
+    provider.setCustomParameters({
+  'display': 'popup'
+});
     signInWithPopup(auth, provider)
   .then((result: UserCredential) => {
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential?.accessToken;
     // The signed-in user info.
     const user = result.user;
+
+    // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+    const credential = FacebookAuthProvider.credentialFromResult(result);
+    const accessToken = credential?.accessToken;
+
     // IdP data available using getAdditionalUserInfo(result)
     // ...
-    console.log({token:token,user:user })
-  }).catch((error:AuthError) => {
+    console.log({user:user,accessToken:accessToken})
+  })
+  .catch((error: AuthError) => {
     // Handle Errors here.
     const errorCode = error.code;
     const errorMessage = error.message;
     // The email of the user's account used.
     const email = error.customData.email;
     // The AuthCredential type that was used.
-    const credential = GoogleAuthProvider.credentialFromError(error);
+    const credential = FacebookAuthProvider.credentialFromError(error);
+
     // ...
-    console.log({errorCode:errorCode,errorMessage:errorMessage,email:email,credential:credential })
+    console.log({errorCode:errorCode,errorMessage:errorMessage,email:email,credential:credential})
   });
-    
+
+
+  }
+  //implementing google provider signup
+  const googleSignIn = () => {
+    const provider = new GoogleAuthProvider()
+    // provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+    auth.languageCode = 'it'
+    signInWithPopup(auth, provider)
+      .then((result: UserCredential) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result)
+        const token = credential?.accessToken
+        // The signed-in user info.
+        const user = result.user
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+        console.log({ token: token, user: user })
+      })
+      .catch((error: AuthError) => {
+        // Handle Errors here.
+        const errorCode = error.code
+        const errorMessage = error.message
+        // The email of the user's account used.
+        const email = error.customData.email
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error)
+        // ...
+        console.log({
+          errorCode: errorCode,
+          errorMessage: errorMessage,
+          email: email,
+          credential: credential,
+        })
+      })
   }
   //implementing email&password sign-up
   const formData: SubmitHandler<Inputs> = (data) => {
@@ -76,8 +124,7 @@ export const FormRegister = () => {
           // Signed in
           const user = userCredential.user
           console.log(user)
-          navigate('/sign-up/confirmation-page',{replace:true})
-          
+          navigate('/sign-up/confirmation-page', { replace: true })
         })
         .catch((error: { code: string; message: string }) => {
           const errorCode = error.code
@@ -93,8 +140,12 @@ export const FormRegister = () => {
     <>
       <header>
         <nav>
-            <Link to='/sign-up' replace><h1>REGISTER</h1></Link>
-          <Link to='/sign-up/login' replace><h1>LOG IN</h1></Link>
+          <Link to='/sign-up' replace>
+            <h1>REGISTER</h1>
+          </Link>
+          <Link to='/sign-up/login' replace>
+            <h1>LOG IN</h1>
+          </Link>
         </nav>
         <h1>Register as a Writer/Reader</h1>
       </header>
@@ -181,7 +232,7 @@ export const FormRegister = () => {
       <button type='button' className='border' onClick={googleSignIn}>
         <img src={googleLogoButton} alt='google logo' /> Sign up with google
       </button>
-      <button type='button' className='border'>
+      <button type='button' className='border' onClick={facebookSignIn}>
         {' '}
         <img src={linkedinLogoButton} alt='linkedIn logo' /> Sign up with
         Linkedin

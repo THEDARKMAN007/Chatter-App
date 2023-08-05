@@ -1,12 +1,9 @@
-
 export const FeedMain = () => {
-    return (
-        <>
-            <section>
-                <article>
-                    feed based on interests
-                </article>
-            </section>
-        </>
-    )
+  return (
+    <>
+      <section>
+        <article>feed based on interests</article>
+      </section>
+    </>
+  )
 }
