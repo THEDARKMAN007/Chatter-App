@@ -1,16 +1,14 @@
 // icons
-import openedEyeIcon from '../../assets/images/sign-up&in form/open-eye-icon-sign-up-screen.svg'
-import closedEyeIcon from '../../assets/images/sign-up&in form/closed-eye-icon-sign-up-screen.svg'
-import googleLogoButton from '../../assets/images/sign-up&in form/google-logo-sign-up-page.svg'
-import linkedinLogoButton from '../../assets/images/sign-up&in form/linkedin-logo-sign-up-page.svg'
-
+import openedEyeIcon from '../../assets/images/authentication/open-eye-icon-sign-up-screen.svg'
+import closedEyeIcon from '../../assets/images/authentication/closed-eye-icon-sign-up-screen.svg'
+import googleLogoButton from '../../assets/images/authentication/google-logo-sign-up-page.svg'
+import linkedinLogoButton from '../../assets/images/authentication/linkedin-logo-sign-up-page.svg'
 //navigation
 import { Link, useNavigate } from 'react-router-dom'
-
 //form validation
 import { useForm, SubmitHandler } from 'react-hook-form'
-
 //firebase auth
+import { auth } from '../../firebase/Firebase'
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -18,8 +16,10 @@ import {
   signInWithPopup,
   AuthError,
   UserCredential,
+  onAuthStateChanged,
+  sendEmailVerification,
+  updateProfile,
 } from 'firebase/auth'
-import { auth } from '../../firebase/Firebase'
 
 export const FormRegister = () => {
   ////TYPE
@@ -45,47 +45,49 @@ export const FormRegister = () => {
   } = useForm<Inputs>()
   const navigate = useNavigate()
 
-//AUTHENTICATION METHODS
+  //AUTHENTICATION METHODS
   //implementing facebook provider sign-up {facebook enforces https}
   const facebookSignIn = () => {
-    const provider = new FacebookAuthProvider();
-    provider.addScope('user_birthday');
-    auth.languageCode = 'it';
+    const provider = new FacebookAuthProvider()
+    provider.addScope('user_birthday')
+    auth.languageCode = 'it'
     provider.setCustomParameters({
-  'display': 'popup'
-});
+      display: 'popup',
+    })
     signInWithPopup(auth, provider)
-  .then((result: UserCredential) => {
-    // The signed-in user info.
-    const user = result.user;
+      .then((result: UserCredential) => {
+        // The signed-in user info.
+        const user = result.user
 
-    // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-    const credential = FacebookAuthProvider.credentialFromResult(result);
-    const accessToken = credential?.accessToken;
+        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+        const credential = FacebookAuthProvider.credentialFromResult(result)
+        const accessToken = credential?.accessToken
 
-    // IdP data available using getAdditionalUserInfo(result)
-    // ...
-    console.log({user:user,accessToken:accessToken})
-  })
-  .catch((error: AuthError) => {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // The email of the user's account used.
-    const email = error.customData.email;
-    // The AuthCredential type that was used.
-    const credential = FacebookAuthProvider.credentialFromError(error);
-
-    // ...
-    console.log({errorCode:errorCode,errorMessage:errorMessage,email:email,credential:credential})
-  });
-
-
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+        console.log({ user: user, accessToken: accessToken })
+      })
+      .catch((error: AuthError) => {
+        // Handle Errors here.
+        const errorCode = error.code
+        const errorMessage = error.message
+        // The email of the user's account used.
+        const email = error.customData.email
+        // The AuthCredential type that was used.
+        const credential = FacebookAuthProvider.credentialFromError(error)
+        // ...
+        console.log({
+          errorCode: errorCode,
+          errorMessage: errorMessage,
+          email: email,
+          credential: credential,
+        })
+      })
   }
   //implementing google provider signup
   const googleSignIn = () => {
     const provider = new GoogleAuthProvider()
-    // provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+    //provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
     auth.languageCode = 'it'
     signInWithPopup(auth, provider)
       .then((result: UserCredential) => {
@@ -117,13 +119,43 @@ export const FormRegister = () => {
   }
   //implementing email&password sign-up
   const formData: SubmitHandler<Inputs> = (data) => {
-    console.log(data)
     if (data.password === data.confirmPassword) {
       createUserWithEmailAndPassword(auth, data.email, data.password)
         .then((userCredential) => {
-          // Signed in
-          const user = userCredential.user
-          console.log(user)
+          // Signed in successful
+          const user1 = userCredential.user
+          console.log(user1)
+
+          // setting user basic info
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              updateProfile(user, {
+                displayName: `${(data.firstName, data.lastName)}`,
+              })
+                .then(() => {
+                  console.log(user.displayName)
+                })
+                .catch((error) => {
+                  console.log(error)
+                })
+            }
+          })
+        })
+        .then(() => {
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              auth.languageCode = 'it'
+              sendEmailVerification(user)
+                .then(() => {
+                  alert('check your email to verify your account')
+                })
+                .catch((error) => {
+                  console.log(error)
+                })
+            }
+          })
+        })
+        .then(() => {
           navigate('/sign-up/confirmation-page', { replace: true })
         })
         .catch((error: { code: string; message: string }) => {

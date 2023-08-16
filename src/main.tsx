@@ -3,13 +3,15 @@ import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AuthenticationPage } from './routes/authentication-page'
 import ErrorPage from './error-page'
-import { FormRegister } from './components/sign-up&in forms/register-form'
-import { FormLogIn } from './components/sign-up&in forms/login-form'
-import { ConfirmationPage } from './components/sign-up&in forms/confirmation-form'
+import { FormRegister } from './components/authentication/register-form'
+import { FormLogIn } from './components/authentication/login-form'
+import { ConfirmationPage } from './components/authentication/confirmation-form'
 import { LandingPage } from './routes/landing-page'
-import { Feed } from './routes/personalized-routes/feed'
-import { FeedMain } from './components/feed/feed'
-import { BlogPostCreator } from './components/feed/post'
+import { Feed } from './routes/pages/feed'
+import { BlogPostCreator } from './routes/pages/post'
+import { ForYou } from './components/feed/forYou'
+import { Featured } from './components/feed/featured'
+import { Recent } from './components/feed/recent'
 
 const router = createBrowserRouter([
   {
@@ -32,12 +34,21 @@ const router = createBrowserRouter([
     element: <Feed />,
     errorElement: <ErrorPage />,
     children: [
-      { index: true, element: <FeedMain /> },
+      { index: true, element: <ForYou /> },
       {
-        path: 'create-blog-post',
-        element: <BlogPostCreator />,
+        path: 'featured',
+        element: <Featured />,
+      },
+      {
+        path: 'recent',
+        element: <Recent />,
       },
     ],
+  },
+  {
+    path: 'post',
+    element: <BlogPostCreator />,
+    errorElement: <ErrorPage />,
   },
 ])
 

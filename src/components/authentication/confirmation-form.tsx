@@ -1,4 +1,4 @@
-import arrowCircleLeft from '../../assets/images/sign-up&in form/arrow-circle-left.svg'
+import arrowCircleLeft from '../../assets/images/authentication/arrow-circle-left.svg'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
 export const ConfirmationPage = () => {

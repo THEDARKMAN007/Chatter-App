@@ -1,6 +1,6 @@
-import openedEyeIcon from '../../assets/images/sign-up&in form/open-eye-icon-sign-up-screen.svg'
-import googleLogoButton from '../../assets/images/sign-up&in form/google-logo-sign-up-page.svg'
-import linkedinLogoButton from '../../assets/images/sign-up&in form/linkedin-logo-sign-up-page.svg'
+import openedEyeIcon from '../../assets/images/authentication/open-eye-icon-sign-up-screen.svg'
+import googleLogoButton from '../../assets/images/authentication/google-logo-sign-up-page.svg'
+import linkedinLogoButton from '../../assets/images/authentication/linkedin-logo-sign-up-page.svg'
 import { Link } from 'react-router-dom'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { signInWithEmailAndPassword } from 'firebase/auth'
@@ -26,6 +26,8 @@ export const FormLogIn = () => {
         // Signed in
         const user = userCredential.user
         console.log(user)
+      })
+      .then(() => {
         navigate('/sign-up/confirmation-page', { replace: true })
       })
       .catch((error: { code: string; message: string }) => {
@@ -72,15 +74,17 @@ export const FormLogIn = () => {
           <img src={openedEyeIcon} alt='open eye icon' />
           {errors.password && <p role='alert'>{errors.password?.message}</p>}
         </div>
-        <button type='submit'>Create account</button>
+        <button type='submit' className='border'>
+          sign in
+        </button>
       </form>
       {/* alternative sign-in */}
       <button type='button' className='border'>
-        <img src={googleLogoButton} alt='google logo' /> Sign up with google
+        <img src={googleLogoButton} alt='google logo' /> Sign in with google
       </button>
       <button type='button' className='border'>
         {' '}
-        <img src={linkedinLogoButton} alt='linkedIn logo' /> Sign up with
+        <img src={linkedinLogoButton} alt='linkedIn logo' /> Sign in with
         Linkedin
       </button>
     </>
