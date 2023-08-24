@@ -34,7 +34,7 @@ export const FormLogIn = () => {
         const errorCode = error.code
         const errorMessage = error.message
         console.log(errorCode, errorMessage)
-        alert('your email or password is incorrect')
+        console.log('your email or password is incorrect')
       })
   }
 
