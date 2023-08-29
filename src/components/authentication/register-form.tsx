@@ -1,8 +1,8 @@
 // icons
-import openedEyeIcon from '../../assets/images/authentication/open-eye-icon-sign-up-screen.svg'
-import closedEyeIcon from '../../assets/images/authentication/closed-eye-icon-sign-up-screen.svg'
+// import openedEyeIcon from '../../assets/images/authentication/open-eye-icon-sign-up-screen.svg'
+// import closedEyeIcon from '../../assets/images/authentication/closed-eye-icon-sign-up-screen.svg'
 import googleLogoButton from '../../assets/images/authentication/google-logo-sign-up-page.svg'
-import linkedinLogoButton from '../../assets/images/authentication/linkedin-logo-sign-up-page.svg'
+import twitterLogoButton from '../../assets/images/authentication/twitter.png'
 
 //navigation
 import { Link, useNavigate } from 'react-router-dom'
@@ -15,7 +15,7 @@ import { auth } from '../../firebase/Firebase'
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  FacebookAuthProvider,
+  TwitterAuthProvider,
   signInWithPopup,
   AuthError,
   UserCredential,
@@ -49,42 +49,31 @@ export const FormRegister = () => {
   const navigate = useNavigate()
 
   //AUTHENTICATION METHODS
-  //implementing facebook provider sign-up {facebook enforces https}
-  const facebookSignIn = () => {
-    const provider = new FacebookAuthProvider()
-    provider.addScope('user_birthday')
+  //implementing twitter provider sign-up
+  const twitterSignIn = () => {
+    const provider = new TwitterAuthProvider()
     auth.languageCode = 'it'
     provider.setCustomParameters({
       display: 'popup',
     })
+    provider.setCustomParameters({
+      lang: 'en',
+    })
     signInWithPopup(auth, provider)
       .then((result: UserCredential) => {
-        // The signed-in user info.
+        const credential = TwitterAuthProvider.credentialFromResult(result)
+        const token = credential?.accessToken
+        const secret = credential?.secret
         const user = result.user
+        console.log(token,secret,user)
 
-        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-        const credential = FacebookAuthProvider.credentialFromResult(result)
-        const accessToken = credential?.accessToken
-
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
-        console.log({ user: user, accessToken: accessToken })
       })
       .catch((error: AuthError) => {
-        // Handle Errors here.
         const errorCode = error.code
         const errorMessage = error.message
-        // The email of the user's account used.
         const email = error.customData.email
-        // The AuthCredential type that was used.
-        const credential = FacebookAuthProvider.credentialFromError(error)
-        // ...
-        console.log({
-          errorCode: errorCode,
-          errorMessage: errorMessage,
-          email: email,
-          credential: credential,
-        })
+        const credential = TwitterAuthProvider.credentialFromError(error)
+        console.log(errorCode,errorMessage,email,credential)
       })
   }
   //implementing google provider signup
@@ -172,9 +161,9 @@ export const FormRegister = () => {
   }
 
   return (
-    <div className='mx-auto sm:w-[63.5%]'>
+    <div className='mx-auto w-[70%] justify-center sm:w-[63.5%]'>
       <header>
-        <nav className='flex flex-row items-center justify-between sm:w-[84.6%] sm:text-[1.11vw] font-[700] leading-[1.5em] sm:pb-[0.75em]'>
+        <nav className='text-[0.8rem] flex flex-row items-center justify-evenly sm:justify-between sm:w-[84.6%] sm:text-[min(1.11vw,1rem)] font-[700] leading-[1.5em] sm:pb-[0.75em] mx-auto'>
           <Link to='/sign-up' replace>
             <h3>REGISTER</h3>
           </Link>
@@ -182,25 +171,25 @@ export const FormRegister = () => {
             <h3>LOG IN</h3>
           </Link>
         </nav>
-        <div className='sm:w-[84.6%] flex flex-row rounded-[8px]'>
+        <div className='sm:w-[84.6%] flex flex-row mx-auto rounded-[8px]'>
           <div className='bg-[#543EE0] w-[50%] h-[6px] rounded-[8px]'></div>
           <div className='bg-[#D9D9D9] w-[50%] h-[6px] rounded-[8px]'></div>
         </div>
       </header>
 
-      <h1 className='sm:text-[2.22vw] text-[#111] text-center leading-[1.5em] font-[500] py-[0.75em]'>
+      <h1 className='text-[1rem] sm:text-[min(2.22vw,2rem)] text-[#111] text-center leading-[1.5em] font-[500] py-[0.75em]'>
         Register as a Writer/Reader
       </h1>
 
       <form
         onSubmit={handleSubmit(formData)}
-        className='flex flex-col items-center gap-[5px]'
+        className='flex flex-col items-center gap-[10px]'
       >
-        <div className='flex flex-row items-center justify-between'>
-          <div className='w-[48.46%]'>
+        <div className='flex flex-col sm:flex-row items-center sm:justify-between w-[100%]'>
+          <div className='w-[100%] sm:w-[48.46%]'>
             <label
               htmlFor='First name'
-              className='text-[1vw] font-[400] leading-[1.5em]'
+              className='text-[1rem] sm:text-[min(1vw,14px)] font-[400] leading-[1.5em]'
             >
               First name
             </label>
@@ -209,7 +198,7 @@ export const FormRegister = () => {
               id='First name'
               {...register('firstName', { required: 'first name is required' })}
               aria-invalid={errors.firstName ? 'true' : 'false'}
-              className='border border-[#CED4DA] w-[100%] text-[1vw] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em]'
+              className='text-[1rem] border border-[#CED4DA] w-[100%] sm:text-[min(1vw,16px)] font-[400] leading-[1.5em] px-[0.5em] py-[0.1em] sm:px-[1em] sm:py-[0.625em] sm:mt-[0.75em] rounded-[0.5em]'
             />
             {errors.firstName && (
               <p role='alert' className='bg-[red] text-[white] text-center'>
@@ -217,10 +206,10 @@ export const FormRegister = () => {
               </p>
             )}
           </div>
-          <div className='w-[48.46%]'>
+          <div className='w-[100%] sm:w-[48.46%]'>
             <label
               htmlFor='Last name'
-              className='text-[1vw] font-[400] leading-[1.5em]'
+              className='text-[1rem] sm:text-[min(1vw,14px)] font-[400] leading-[1.5em]'
             >
               Last name
             </label>
@@ -229,7 +218,7 @@ export const FormRegister = () => {
               id='Last name'
               {...register('lastName', { required: 'last name is required' })}
               aria-invalid={errors.lastName ? 'true' : 'false'}
-              className='border border-[#CED4DA] w-[100%] text-[1vw] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em]'
+              className='text-[1rem] border border-[#CED4DA] w-[100%] sm:text-[min(1vw,16px)] font-[400] leading-[1.5em] px-[0.5em] py-[0.1em] sm:px-[1em] sm:py-[0.625em] sm:mt-[0.75em] rounded-[0.5em]'
             />
             {errors.lastName && <p role='alert'>{errors.lastName?.message}</p>}
           </div>
@@ -238,7 +227,7 @@ export const FormRegister = () => {
         <div className='w-[100%] flex flex-col'>
           <label
             htmlFor='role'
-            className='text-[1vw] font-[400] leading-[1.5em]'
+            className='text-[1rem] sm:text-[min(1vw,14px)] font-[400] leading-[1.5em]'
           >
             You are joining as?
           </label>
@@ -246,7 +235,7 @@ export const FormRegister = () => {
             id='role'
             {...register('role', { required: 'role is required' })}
             aria-invalid={errors.role ? 'true' : 'false'}
-            className='border border-[#CED4DA] w-[100%] text-[1vw] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em]'
+            className='text-[1rem] border border-[#CED4DA] w-[100%] sm:text-[min(1vw,16px)] font-[400] leading-[1.5em] px-[0.5em] py-[0.1em] sm:px-[1em] sm:py-[0.625em] sm:mt-[0.75em] rounded-[0.5em]'
           >
             <option value='writer'>Writer</option>
             <option value='reader'>Reader</option>
@@ -258,7 +247,7 @@ export const FormRegister = () => {
         <div className='w-[100%] flex flex-col'>
           <label
             htmlFor='email address'
-            className='text-[1vw] font-[400] leading-[1.5em]'
+            className='text-[1rem] sm:text-[min(1vw,14px)] font-[400] leading-[1.5em]'
           >
             Email address
           </label>
@@ -267,7 +256,7 @@ export const FormRegister = () => {
             id='email address'
             {...register('email', { required: 'email is required' })}
             aria-invalid={errors.email ? 'true' : 'false'}
-            className='border border-[#CED4DA] w-[100%] text-[1vw] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em]'
+            className='text-[1rem] border border-[#CED4DA] w-[100%] sm:text-[min(1vw,16px)] font-[400] leading-[1.5em] px-[0.5em] py-[0.1em] sm:px-[1em] sm:py-[0.625em] sm:mt-[0.75em] rounded-[0.5em]'
           />
           {errors.email && <p role='alert'>{errors.email?.message}</p>}
         </div>
@@ -275,7 +264,7 @@ export const FormRegister = () => {
         <div className='w-[100%] flex flex-col'>
           <label
             htmlFor='password'
-            className='text-[1vw] font-[400] leading-[1.5em]'
+            className='text-[1rem] sm:text-[min(1vw,14px)] font-[400] leading-[1.5em]'
           >
             Password
           </label>
@@ -284,7 +273,7 @@ export const FormRegister = () => {
             id='password'
             {...register('password', { required: 'password is required' })}
             aria-invalid={errors.password ? 'true' : 'false'}
-            className='border border-[#CED4DA] w-[100%] text-[1vw] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em]'
+            className='text-[1rem] border border-[#CED4DA] w-[100%] sm:text-[min(1vw,16px)] font-[400] leading-[1.5em] px-[0.5em] py-[0.1em] sm:px-[1em] sm:py-[0.625em] sm:mt-[0.75em] rounded-[0.5em]'
           />
           {/* <img src={openedEyeIcon} alt='open eye icon' /> */}
           {errors.password && <p role='alert'>{errors.password?.message}</p>}
@@ -292,7 +281,7 @@ export const FormRegister = () => {
         <div className='w-[100%] flex flex-col'>
           <label
             htmlFor='Confirm password'
-            className='text-[1vw] font-[400] leading-[1.5em]'
+            className='text-[1rem] sm:text-[min(1vw,14px)] font-[400] leading-[1.5em]'
           >
             Confirm password
           </label>
@@ -303,7 +292,7 @@ export const FormRegister = () => {
               required: 'confirm your password',
             })}
             aria-invalid={errors.confirmPassword ? 'true' : 'false'}
-            className='border border-[#CED4DA] w-[100%] text-[1vw] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em]'
+            className='text-[1rem] border border-[#CED4DA] w-[100%] sm:text-[min(1vw,16px)] font-[400] leading-[1.5em] px-[0.5em] py-[0.1em] sm:px-[1em] sm:py-[0.625em] sm:mt-[0.75em] rounded-[0.5em]'
           />
           {/* <img src={closedEyeIcon} alt='closed eye icon' /> */}
           {errors.confirmPassword && (
@@ -312,7 +301,7 @@ export const FormRegister = () => {
         </div>
         <button
           type='submit'
-          className='border bg-blue-800 w-[100%] text-[1vw] font-[700] leading-[1.5em] px-[1em] py-[0.625em] rounded-[0.5em] text-[#FFF]'
+          className='text-[1rem] border bg-blue-800 w-[100%] sm:text-[min(1vw,16px)] font-[700] leading-[1.5em] px-[1em] py-[0.625em] rounded-[0.5em] text-[#FFF]'
         >
           Create account
         </button>
@@ -321,18 +310,23 @@ export const FormRegister = () => {
       <button
         type='button'
         onClick={googleSignIn}
-        className='border border-[#CED4DA] w-[100%] text-[1vw] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em] flex flex-row items-center justify-center'
+        className='text-[1rem] border border-[#CED4DA] w-[100%] sm:text-[min(1vw,16px)] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em] flex flex-row items-center justify-center'
       >
         <img src={googleLogoButton} alt='google logo' />
-        <div className='ml-[1em]'>Sign up with google</div>
+        <div className='ml-[1em]'>Sign up with Google</div>
       </button>
       <button
         type='button'
-        onClick={facebookSignIn}
-        className='border border-[#CED4DA] w-[100%] text-[1vw] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em] flex flex-row items-center justify-center'
+        onClick={twitterSignIn}
+        className='text-[1rem] border border-[#CED4DA] w-[100%] sm:text-[min(1vw,16px)] font-[400] leading-[1.5em] px-[1em] py-[0.625em] mt-[0.75em] rounded-[0.5em] flex flex-row items-center justify-center'
       >
-        <img src={linkedinLogoButton} alt='linkedIn logo' />
-        <div className='ml-[1em]'>Sign up with Linkedin</div>
+        <img
+          src={twitterLogoButton}
+          alt='linkedIn logo'
+          height={'10px'}
+          width={'20px'}
+        />
+        <div className='ml-[1em]'>Sign up with Twitter</div>
       </button>
     </div>
   )
