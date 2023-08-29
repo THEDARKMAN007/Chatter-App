@@ -31,7 +31,7 @@ export const LandingPage = () => {
     <div className='text-[#111]'>
       <header className='flex flex-row w-[90%] mx-auto items-center justify-between'>
         <h1 className='text-[#543EE0] font-[700] leading-[1.5em] sm:text-[max(3.33vw)]'>
-          CHATTER
+          CHAT
         </h1>
         <nav className='flex flex-row items-center sm:w-[62.%] sm:gap-[12vw]'>
           <ul className='text-[#111] font-[700] leading-[1.5em] hidden flex-row sm:flex sm:text-[1.11vw] gap-[1.67vw]'>
