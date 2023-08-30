@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavMenu } from '../components/nav&search/navigation-menu'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
@@ -11,6 +11,8 @@ import {
 } from 'firebase/firestore'
 import { db, auth } from '../firebase/Firebase'
 import { SearchBar } from '../components/nav&search/search-bar'
+import { onAuthStateChanged } from 'firebase/auth'
+import userProfileImg from "../assets/images/nav&search/userProfileImg.png"
 
 export const BlogPostCreator = () => {
   const [content, setContent] = useState<string>('')
@@ -57,13 +59,26 @@ export const BlogPostCreator = () => {
     }
   }
 
+
+   const [profilePic, setProfilePic] = useState('')
+  const [userID, setUserID] = useState<string | undefined>('')
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (typeof user?.photoURL === 'string') {
+        setProfilePic(user?.photoURL)
+      } else setProfilePic(userProfileImg)
+      setUserID(user?.uid)
+    })
+  }, [userID])
+
   //word counter
   const wordCount = content.trim().split(/\s+/).length
 
   return (
     <>
       <NavMenu />
-      <SearchBar />
+      <SearchBar profilePic={profilePic} />
       <ReactQuill
         value={content}
         onChange={handleContentChange}
