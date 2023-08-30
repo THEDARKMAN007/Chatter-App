@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavMenu } from '../../components/nav&search/navigation-menu'
+import { NavMenu } from '../components/nav&search/navigation-menu'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import Showdown from 'showdown'
@@ -9,8 +9,8 @@ import {
   getDocs,
   serverTimestamp,
 } from 'firebase/firestore'
-import { db, auth } from '../../firebase/Firebase'
-import { SearchBar } from './../../components/nav&search/search-bar'
+import { db, auth } from '../firebase/Firebase'
+import { SearchBar } from '../components/nav&search/search-bar'
 
 export const BlogPostCreator = () => {
   const [content, setContent] = useState<string>('')

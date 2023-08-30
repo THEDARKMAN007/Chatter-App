@@ -65,15 +65,14 @@ export const FormRegister = () => {
         const token = credential?.accessToken
         const secret = credential?.secret
         const user = result.user
-        console.log(token,secret,user)
-
+        console.log(token, secret, user)
       })
       .catch((error: AuthError) => {
         const errorCode = error.code
         const errorMessage = error.message
         const email = error.customData.email
         const credential = TwitterAuthProvider.credentialFromError(error)
-        console.log(errorCode,errorMessage,email,credential)
+        console.log(errorCode, errorMessage, email, credential)
       })
   }
   //implementing google provider signup
