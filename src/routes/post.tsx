@@ -12,7 +12,7 @@ import {
 import { db, auth } from '../firebase/Firebase'
 import { SearchBar } from '../components/nav&search/search-bar'
 import { onAuthStateChanged } from 'firebase/auth'
-import userProfileImg from "../assets/images/nav&search/userProfileImg.png"
+import userProfileImg from '../assets/images/nav&search/userProfileImg.png'
 
 export const BlogPostCreator = () => {
   const [content, setContent] = useState<string>('')
@@ -37,7 +37,6 @@ export const BlogPostCreator = () => {
       if (!user) {
         throw new Error('User not signed in.')
       }
-      console.log(user)
       const userEmail = user.email || 'default_email'
       const userCollectionRef = collection(db, userEmail)
       const newDocRef = await addDoc(userCollectionRef, {
@@ -59,8 +58,7 @@ export const BlogPostCreator = () => {
     }
   }
 
-
-   const [profilePic, setProfilePic] = useState('')
+  const [profilePic, setProfilePic] = useState('')
   const [userID, setUserID] = useState<string | undefined>('')
 
   useEffect(() => {

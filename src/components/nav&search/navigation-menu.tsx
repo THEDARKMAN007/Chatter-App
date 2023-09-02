@@ -31,7 +31,7 @@ export const NavMenu = () => {
   })
 
   return (
-    <nav className='flex flex-col items-center border min-h-screen'>
+    <nav className='md:flex flex-col items-center border min-h-screen hidden'>
       <Link to='/'>
         <h1 className='text-[#543EE0] text-[calc(1rem+1.111vw)] leading-[1.5] font-[500]'>
           CHATTER
