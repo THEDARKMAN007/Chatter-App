@@ -37,8 +37,10 @@ export const BlogPostCreator = () => {
       if (!user) {
         throw new Error('User not signed in.')
       }
-      const userEmail = user.email || 'default_email'
-      const userCollectionRef = collection(db, userEmail)
+
+      const collectionID = user.uid
+      
+      const userCollectionRef = collection(db, collectionID)
       const newDocRef = await addDoc(userCollectionRef, {
         userId: user.uid,
         name: user.displayName,
@@ -46,7 +48,7 @@ export const BlogPostCreator = () => {
         blogPost: savedContent,
         timeStamp: serverTimestamp(),
       })
-      // Output the ID of the newly added document
+      // the ID of the newly added document
       console.log('Document written with ID:', newDocRef.id)
       // Read documents from the user-specific collection
       const querySnapshot = await getDocs(userCollectionRef)

@@ -122,11 +122,7 @@ export const FormRegister = () => {
             if (user) {
               updateProfile(user, {
                 displayName: `${(data.firstName, data.lastName)}`,
-              })
-                .then(() => {
-                  console.log(user.displayName)
-                })
-                .catch((error) => {
+              }).catch((error) => {
                   console.log(error)
                 })
             }

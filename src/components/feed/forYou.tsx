@@ -1,34 +1,38 @@
-import { db, auth } from '../../firebase/Firebase'
-import { useEffect, useState } from 'react'
-import {collection, query, getDocs } from 'firebase/firestore'
+import { db,auth } from '../../firebase/Firebase';
+import { getDocs, collection } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+
 
 export const ForYou = () => {
-  const [blogs, setBlogs] = useState<string[]>([])
-
+const [blogs, setBlogs] = useState()
   async function getBlogs() {
-    const q = query(collection(db, "cities"))
-    const querySnapshot = await getDocs(q);
-    console.log(querySnapshot)
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data());
-    });
+    const user = auth.currentUser
+    if(user !== null)
+    {
+      const collectionID = user.uid
+      console.log(collectionID)
+      const querySnapshot = await getDocs(collection(db, collectionID))
+      console.log(querySnapshot)
+      return querySnapshot 
+    }
 
-  } 
+    }
+
 
   useEffect(() => {
-    getBlogs().catch(()=>alert('error'))
+    getBlogs().then((querySnapshot) => {
+     querySnapshot?.forEach((doc) => {
+        console.log(`${doc.id} => ${JSON.stringify(doc.data())}`)
+     })
+   }).catch(()=>console.log('error'))
   },[])
+  
 
   return (
     <>
-      <section>{blogs.map((blog) => {
-        return (
-          <div>
-            {blog}
-          </div>
-        )
-      })}</section>
+      <section>
+        blogs
+      </section>
     </>
   )
 }
