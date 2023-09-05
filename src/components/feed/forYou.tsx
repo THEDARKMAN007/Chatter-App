@@ -1,10 +1,10 @@
 import { db,auth } from '../../firebase/Firebase';
 import { getDocs, collection } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 
 export const ForYou = () => {
-const [blogs, setBlogs] = useState()
+// const [blogs, setBlogs] = useState()
   async function getBlogs() {
     const user = auth.currentUser
     if(user !== null)
