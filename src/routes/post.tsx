@@ -39,7 +39,7 @@ export const BlogPostCreator = () => {
       }
 
       const collectionID = user.uid
-      
+
       const userCollectionRef = collection(db, collectionID)
       const newDocRef = await addDoc(userCollectionRef, {
         userId: user.uid,

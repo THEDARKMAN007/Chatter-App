@@ -22,7 +22,7 @@ export const SearchBar = (props: Props) => {
             setSearch(e.target.value)
           }}
         />
-        <button className='bg-[blue] px-5' onClick={()=>[''].includes('')}>
+        <button className='bg-[blue] px-5' onClick={() => [''].includes('')}>
           <img src={searchIcon} alt='feed-image' className='inline mr-2' />
           search
         </button>

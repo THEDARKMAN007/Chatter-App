@@ -123,8 +123,8 @@ export const FormRegister = () => {
               updateProfile(user, {
                 displayName: `${(data.firstName, data.lastName)}`,
               }).catch((error) => {
-                  console.log(error)
-                })
+                console.log(error)
+              })
             }
           })
         })
