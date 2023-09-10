@@ -40,10 +40,8 @@ export const ForYou = () => {
 
   return (
     <section>
-      {blogs.map((blog) => {
-        return userID.map((id)=>{
-        return (<div className='border' key={id}>{blog}</div>)
-        })
+      {blogs.map((blog,index) => {
+        return (<div className='border' key={userID[index]}>{blog}</div>)
       })}
     </section>
   )
