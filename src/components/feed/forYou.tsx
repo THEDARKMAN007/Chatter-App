@@ -1,11 +1,13 @@
 import { db, auth } from '../../firebase/Firebase'
-import { getDocs, collection } from 'firebase/firestore'
+import { getDocs, collection, DocumentData } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 
 
 export const ForYou = () => {
-  const [blogs, setBlogs] = useState<object[]>([])
+  const [blogs, setBlogs] = useState<string[]>([])
   const [userID, setUserID] = useState<string[]>([])
+
+
 
   useEffect(() => {
     async function getBlogs() {
@@ -16,17 +18,22 @@ export const ForYou = () => {
       }
     }
 
-    const documents: object[] = []
+    const documents: string[] = []
     const ID: string[] = []
 
     getBlogs()
       .then((querySnapshot) => {
         querySnapshot?.forEach((doc) => {
-          documents.push(doc.data())
+          const document: DocumentData = doc.data()
+          if (typeof document.blogPost === 'string') {
+            documents.push(document.blogPost);
+          } else {
+            console.error('Invalid blogPost data:', document.blogPost);
+          }
           ID.push(doc.id)
-          setBlogs(documents)
-          setUserID(ID)
         })
+        setBlogs(documents)
+        setUserID(ID)
       })
       .catch(() => console.log('error result'))
   }, [])
@@ -35,7 +42,7 @@ export const ForYou = () => {
     <section>
       {blogs.map((blog) => {
         return userID.map((id)=>{
-        return (<div className='border' key={id}>{blog.blogPost}</div>)
+        return (<div className='border' key={id}>{blog}</div>)
         })
       })}
     </section>
