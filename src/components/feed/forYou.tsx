@@ -2,14 +2,10 @@ import { db, auth } from '../../firebase/Firebase'
 import { getDocs, collection } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 
-// interface BlogData {
-//   id: string,
-//   data: object
-// }
 
 export const ForYou = () => {
   const [blogs, setBlogs] = useState<object[]>([])
-  // const [userID, setUserID] = useState('')
+  const [userID, setUserID] = useState<string[]>([])
 
   useEffect(() => {
     async function getBlogs() {
@@ -19,13 +15,17 @@ export const ForYou = () => {
         return querySnapshot
       }
     }
-    const data: object[] = []
+
+    const documents: object[] = []
+    const ID: string[] = []
+
     getBlogs()
       .then((querySnapshot) => {
         querySnapshot?.forEach((doc) => {
-          console.log(doc)
-          data.push({ID:doc.id,data:doc.data()})
-          setBlogs(data)
+          documents.push(doc.data())
+          ID.push(doc.id)
+          setBlogs(documents)
+          setUserID(ID)
         })
       })
       .catch(() => console.log('error result'))
@@ -33,19 +33,10 @@ export const ForYou = () => {
 
   return (
     <section>
-      {/* {
-        blogs.map((blog) => {
-        console.log(blogs)
-
-            return (
-      <div className='border'>
-              {blog.blogPost}
-      </div>
-            )
-          })
-      } */}
       {blogs.map((blog) => {
-        return (<div className='border' key={blog.ID}>{blog.data.blogPost}</div>)
+        return userID.map((id)=>{
+        return (<div className='border' key={id}>{blog.blogPost}</div>)
+        })
       })}
     </section>
   )

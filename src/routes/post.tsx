@@ -76,8 +76,9 @@ export const BlogPostCreator = () => {
   const wordCount = content.trim().split(/\s+/).length
 
   return (
-    <>
+    <div className='flex flex-row'>
       <NavMenu />
+      <div>
       <SearchBar profilePic={profilePic} />
       <ReactQuill
         value={content}
@@ -93,8 +94,10 @@ export const BlogPostCreator = () => {
         }}
       >
         Save as Markdown
-      </button>
-    </>
+        </button>
+      </div>
+        
+    </div>
   )
 }
 
