@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import notificationBellIcon from '../../assets/images/nav&search/basil_notification-outline.svg'
 import searchIcon from '../../assets/images/nav&search/Vector.svg'
 
@@ -9,6 +9,10 @@ interface Props {
 export const SearchBar = (props: Props) => {
   const [search, setSearch] = useState('')
 
+  useEffect(() => {
+    setSearch('')
+  },[])
+
   return (
     <header className='flex flex-row items-center justify-evenly border'>
       <div className='flex flex-row w-[70%] gap-5'>
@@ -17,10 +21,8 @@ export const SearchBar = (props: Props) => {
           name='search'
           id='search'
           className='border'
-          onChange={(e) => {
-            e.preventDefault()
-            setSearch(e.target.value)
-          }}
+          value={search}
+          
         />
         <button className='bg-[blue] px-5' onClick={() => [''].includes('')}>
           <img src={searchIcon} alt='feed-image' className='inline mr-2' />
