@@ -1,5 +1,5 @@
 import { db, auth } from '../../firebase/Firebase'
-import { getDocs, collection, DocumentData } from 'firebase/firestore'
+import { getDocs, collection, DocumentData, query, orderBy } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 
 
@@ -13,7 +13,8 @@ export const ForYou = () => {
     async function getBlogs() {
       if (auth.currentUser) {
         const UserID = auth.currentUser.uid
-        const querySnapshot = await getDocs(collection(db, UserID))
+        const q = query(collection(db, UserID), orderBy('timestamp', 'desc')); 
+        const querySnapshot = await getDocs(q)
         return querySnapshot
       }
     }
