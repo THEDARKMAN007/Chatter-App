@@ -79,24 +79,23 @@ export const BlogPostCreator = () => {
     <div className='flex flex-row'>
       <NavMenu />
       <div>
-      <SearchBar profilePic={profilePic} />
-      <ReactQuill
-        value={content}
-        onChange={handleContentChange}
-        modules={BlogPostCreator.modules}
-        formats={BlogPostCreator.formats}
-        placeholder='Write your content here...'
-      />
-      <div>Word Count: {wordCount}</div>
-      <button
-        onClick={() => {
-          saveContentInMarkdown()
-        }}
-      >
-        Save as Markdown
+        <SearchBar profilePic={profilePic} />
+        <ReactQuill
+          value={content}
+          onChange={handleContentChange}
+          modules={BlogPostCreator.modules}
+          formats={BlogPostCreator.formats}
+          placeholder='Write your content here...'
+        />
+        <div>Word Count: {wordCount}</div>
+        <button
+          onClick={() => {
+            saveContentInMarkdown()
+          }}
+        >
+          Save as Markdown
         </button>
       </div>
-        
     </div>
   )
 }

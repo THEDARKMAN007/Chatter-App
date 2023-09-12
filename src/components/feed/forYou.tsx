@@ -1,49 +1,26 @@
-import { db, auth } from '../../firebase/Firebase'
-import { getDocs, collection, DocumentData, query, orderBy } from 'firebase/firestore'
-import { useEffect, useState } from 'react'
-
+import { useOutletContext } from 'react-router-dom'
 
 export const ForYou = () => {
-  const [blogs, setBlogs] = useState<string[]>([])
-  const [userID, setUserID] = useState<string[]>([])
+  interface BlogData {
+    blogs: string[] | null
+    userID2: string[]
+  }
 
-
-
-  useEffect(() => {
-    async function getBlogs() {
-      if (auth.currentUser) {
-        const UserID = auth.currentUser.uid
-        const q = query(collection(db, UserID), orderBy('timestamp', 'desc')); 
-        const querySnapshot = await getDocs(q)
-        return querySnapshot
-      }
-    }
-
-    const documents: string[] = []
-    const ID: string[] = []
-
-    getBlogs()
-      .then((querySnapshot) => {
-        querySnapshot?.forEach((doc) => {
-          const document: DocumentData = doc.data()
-          if (typeof document.blogPost === 'string') {
-            documents.push(document.blogPost);
-          } else {
-            console.error('Invalid blogPost data:', document.blogPost);
-          }
-          ID.push(doc.id)
-        })
-        setBlogs(documents)
-        setUserID(ID)
-      })
-      .catch(() => console.log('error result'))
-  }, [])
+  const blogData = useOutletContext<BlogData>()
 
   return (
     <section>
-      {blogs.map((blog,index) => {
-        return (<div className='border' key={userID[index]}>{blog}</div>)
-      })}
+      {blogData.blogs === null ? (
+        <div>Loading...</div>
+      ) : (
+        blogData.blogs.map((blog, index) => {
+          return (
+            <div className='border' key={blogData.userID2[index]}>
+              {blog}
+            </div>
+          )
+        })
+      )}
     </section>
   )
 }

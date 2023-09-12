@@ -1,23 +1,62 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { NavMenu } from '../components/nav&search/navigation-menu'
 import { SearchBar } from '../components/nav&search/search-bar'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase/Firebase'
+// import { onAuthStateChanged } from 'firebase/auth'
+import { auth, db } from '../firebase/Firebase'
 import { useEffect, useState } from 'react'
 import userProfileImg from '../assets/images/nav&search/userProfileImg.png'
+import {
+  getDocs,
+  collection,
+  DocumentData,
+  query,
+  orderBy,
+} from 'firebase/firestore'
 
 export const Feed = () => {
   const [profilePic, setProfilePic] = useState('')
   const [userID, setUserID] = useState<string | undefined>('')
+  const [blogs, setBlogs] = useState<string[] | null>(null)
+  const [userID2, setUserID2] = useState<string[]>([])
   const location = useLocation()
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (typeof user?.photoURL === 'string') {
-        setProfilePic(user?.photoURL)
-      } else setProfilePic(userProfileImg)
-      setUserID(user?.uid)
-    })
+    async function getBlogs() {
+      if (auth.currentUser) {
+        const user = auth.currentUser
+        if (typeof user?.photoURL === 'string') {
+          setProfilePic(user?.photoURL)
+        } else setProfilePic(userProfileImg)
+
+        setUserID(user?.uid)
+
+        const UserID = user.uid
+        const querySnapshot = await getDocs(
+          query(collection(db, UserID), orderBy('timeStamp', 'desc')),
+        )
+        return querySnapshot
+      }
+    }
+    getBlogs()
+      .then((querySnapshot) => {
+        const documents: string[] = []
+        const IDs: string[] = []
+        querySnapshot?.forEach((doc) => {
+          const document: DocumentData = doc.data()
+          if (typeof document.blogPost === 'string') {
+            documents.push(document.blogPost)
+          } else {
+            console.error('Invalid blogPost data:', document.blogPost)
+          }
+          IDs.push(doc.id)
+        })
+        return { documents, IDs }
+      })
+      .then(({ documents, IDs }) => {
+        setBlogs(documents)
+        setUserID2(IDs)
+      })
+      .catch(() => console.log('error result'))
   }, [userID])
 
   return (
@@ -67,7 +106,7 @@ export const Feed = () => {
             </Link>
           </nav>
           <div className='border p-4'>
-            <Outlet />
+            <Outlet context={{ blogs, userID2 }} />
           </div>
         </main>
       </div>

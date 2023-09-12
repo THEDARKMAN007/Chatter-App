@@ -10,26 +10,22 @@ import trending from '../../assets/images/nav&search/eva_trending-up-outline.svg
 import account from '../../assets/images/nav&search/mdi_account-outline.svg'
 import notifications from '../../assets/images/nav&search/basil_notification-outline.svg'
 
+const blogCategoriesArray: string[] = [
+  'Programming',
+  'Data science',
+  'Technology',
+  'Machine learning',
+  'Politics',
+]
+const blogCategories = blogCategoriesArray.map((blogCategory) => {
+  return (
+    <li key={blogCategory} className='text-[#626262] font-[400] leading-[1.5]'>
+      {blogCategory}
+    </li>
+  )
+})
+
 export const NavMenu = () => {
-  const blogCategoriesArray: string[] = [
-    'Programming',
-    'Data science',
-    'Technology',
-    'Machine learning',
-    'Politics',
-  ]
-
-  const blogCategories = blogCategoriesArray.map((blogCategory) => {
-    return (
-      <li
-        key={blogCategory}
-        className='text-[#626262] font-[400] leading-[1.5]'
-      >
-        {blogCategory}
-      </li>
-    )
-  })
-
   return (
     <nav className='col-span-1 md:flex flex-col items-center border min-h-screen hidden'>
       <Link to='/'>
