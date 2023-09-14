@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 export const ForYou = () => {
   const [blogs, setBlogs] = useState<string[]|null>(null)
   const [userID2, setUserID2] = useState<string[]>([])
+  // const [{profilePic}] = useOutletContext()
 
 
   useEffect(() => {
@@ -44,8 +45,11 @@ export const ForYou = () => {
   return (
     <section>
       {
-      blogs === null ?<div>Loading...</div> : blogs.map((blog, index) => {
-        return (<div className='border' key={userID2[index]}>{blog}</div>)
+      blogs === null ?<h1 className=''>Loading...</h1> : blogs.map((blog, index) => {
+        return (<>
+          <img src={''} alt="" />
+          <div className='border min-h-[10rem] p-4' key={userID2[index]}>{blog}</div>
+        </>)
         })   
       }
     </section>

@@ -32,7 +32,7 @@ export const Feed = () => {
         <main className='m-[1rem] border p-5'>
           <div className='flex flex-row items-center justify-between'>
             <h1>
-              FEED
+              FEED {search}
               <p>Explore different content you’d love </p>
             </h1>
             <Link to='/post'>
@@ -69,7 +69,7 @@ export const Feed = () => {
             </Link>
           </nav>
           <div className='border p-4'>
-            <Outlet />
+            <Outlet context={{profilePic}} />
           </div>
         </main>
       </div>
