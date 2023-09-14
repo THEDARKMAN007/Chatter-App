@@ -1,14 +1,13 @@
-import { useState } from 'react'
 import notificationBellIcon from '../../assets/images/nav&search/basil_notification-outline.svg'
 import searchIcon from '../../assets/images/nav&search/Vector.svg'
 
 interface Props {
   profilePic: string
+  search: string
+  onSearchChange: (arg:string)=>void
 }
 
 export const SearchBar = (props: Props) => {
-  const [search, setSearch] = useState('')
-  // const [filter, setFilter] = useState('')
 
   return (
     <header className='col-span-5 flex flex-row items-center justify-evenly border'>
@@ -18,10 +17,10 @@ export const SearchBar = (props: Props) => {
           name='search'
           id='search'
           className='border'
-          value={search}
+          value={props.search}
           onChange={(e) => {
             e.preventDefault()
-            setSearch(e.target.value)
+            props.onSearchChange(e.target.value)
           }}
         />
         <button className='bg-[blue] px-5'>
