@@ -6,7 +6,6 @@ import Showdown from 'showdown'
 import {
   collection,
   addDoc,
-  getDocs,
   serverTimestamp,
 } from 'firebase/firestore'
 import { db, auth } from '../firebase/Firebase'
@@ -47,14 +46,10 @@ export const BlogPostCreator = () => {
         contentType: 'blogPost',
         blogPost: savedContent,
         timeStamp: serverTimestamp(),
+        date: new Date()
       })
       // the ID of the newly added document
       console.log('Document written with ID:', newDocRef.id)
-      // Read documents from the user-specific collection
-      const querySnapshot = await getDocs(userCollectionRef)
-      querySnapshot.forEach((doc) => {
-        console.log(`${doc.id} => ${JSON.stringify(doc.data())}`)
-      })
     } catch (error) {
       console.error(error)
     }
@@ -62,6 +57,7 @@ export const BlogPostCreator = () => {
 
   const [profilePic, setProfilePic] = useState('')
   const [userID, setUserID] = useState<string | undefined>('')
+   const [search, setSearch] = useState('')
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -79,7 +75,7 @@ export const BlogPostCreator = () => {
     <div className='flex flex-row'>
       <NavMenu />
       <div>
-        <SearchBar profilePic={profilePic} />
+        <SearchBar profilePic={profilePic} search={search} onSearchChange={setSearch} />
         <ReactQuill
           value={content}
           onChange={handleContentChange}

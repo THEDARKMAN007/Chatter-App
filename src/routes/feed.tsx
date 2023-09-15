@@ -2,15 +2,22 @@ import { Outlet, Link, useLocation } from 'react-router-dom'
 import  {NavMenu}  from '../components/nav&search/navigation-menu'
 import { SearchBar } from '../components/nav&search/search-bar'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase/Firebase'
+import { getDocs, collection, DocumentData, query, orderBy } from 'firebase/firestore'
+import { auth,db } from '../firebase/Firebase'
 import { useEffect, useState } from 'react'
 import userProfileImg from '../assets/images/nav&search/userProfileImg.png'
+
+// interface pic {
+//   profile
+// }
 
 export const Feed = () => {
   const [profilePic, setProfilePic] = useState('')
   const [userID, setUserID] = useState<string | undefined | null>()
   const location = useLocation()
   const [search, setSearch] = useState('')
+  const [blogs, setBlogs] = useState<string[]|null>(null)
+  const [userID2, setUserID2] = useState<string[]>([])
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -19,6 +26,36 @@ export const Feed = () => {
       } else setProfilePic(userProfileImg)
       setUserID(user?.uid)
     })
+
+     const documents: string[] = []
+  const IDs: string[] = []
+    async function getBlogs() {
+      if (auth.currentUser) {
+        const UserID = auth.currentUser.uid
+        const querySnapshot = await getDocs(query(collection(db, UserID), orderBy('timeStamp', 'desc')))
+        return querySnapshot
+      }
+    }
+
+    getBlogs()
+      .then((querySnapshot) => {
+       
+        querySnapshot?.forEach((doc) => {
+          const document: DocumentData = doc.data()
+          if (typeof document.blogPost === 'string') {
+            documents.push(document.blogPost);
+          } else {
+            console.error('Invalid blogPost data:', document.blogPost);
+          }
+          IDs.push(doc.id)
+        })
+        return {documents,IDs}
+        
+      }).then(({documents,IDs}) => {
+        setBlogs(documents)
+        setUserID2(IDs)
+      })
+      .catch(() => console.log('error result'))
   }, [userID])
 
 
@@ -69,7 +106,7 @@ export const Feed = () => {
             </Link>
           </nav>
           <div className='border p-4'>
-            <Outlet context={{profilePic}} />
+            <Outlet context={{profilePic, userID2, blogs}} />
           </div>
         </main>
       </div>
