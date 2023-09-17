@@ -6,10 +6,9 @@ import { getDocs, collection, DocumentData, query, orderBy } from 'firebase/fire
 import { auth,db } from '../firebase/Firebase'
 import { useEffect, useState } from 'react'
 import userProfileImg from '../assets/images/nav&search/userProfileImg.png'
+import showdown from 'showdown';
 
-// interface pic {
-//   profile
-// }
+
 
 export const Feed = () => {
   const [profilePic, setProfilePic] = useState('')
@@ -18,6 +17,10 @@ export const Feed = () => {
   const [search, setSearch] = useState('')
   const [blogs, setBlogs] = useState<string[]|null>(null)
   const [userID2, setUserID2] = useState<string[]>([])
+  const [userName, setUserName2] = useState<string | null | undefined>('')
+  const [image, setImage] = useState<string|null|undefined>('')
+
+
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -25,6 +28,8 @@ export const Feed = () => {
         setProfilePic(user?.photoURL)
       } else setProfilePic(userProfileImg)
       setUserID(user?.uid)
+      setUserName2(user?.displayName)
+      setImage(user?.photoURL)
     })
 
      const documents: string[] = []
@@ -39,11 +44,11 @@ export const Feed = () => {
 
     getBlogs()
       .then((querySnapshot) => {
-       
         querySnapshot?.forEach((doc) => {
           const document: DocumentData = doc.data()
           if (typeof document.blogPost === 'string') {
-            documents.push(document.blogPost);
+            const htmlContent = new showdown.Converter().makeHtml(document.blogPost);
+            documents.push(htmlContent);
           } else {
             console.error('Invalid blogPost data:', document.blogPost);
           }
@@ -55,7 +60,7 @@ export const Feed = () => {
         setBlogs(documents)
         setUserID2(IDs)
       })
-      .catch(() => console.log('error result'))
+      .catch((err) => console.log('error result:', err))
   }, [userID])
 
 
@@ -106,7 +111,7 @@ export const Feed = () => {
             </Link>
           </nav>
           <div className='border p-4'>
-            <Outlet context={{profilePic, userID2, blogs}} />
+            <Outlet context={{profilePic, userID2, blogs,userName, image}} />
           </div>
         </main>
       </div>
