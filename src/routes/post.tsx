@@ -1,114 +1,118 @@
-import { useState, useEffect } from 'react'
-import { NavMenu } from '../components/nav&search/navigation-menu'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
-import Showdown from 'showdown'
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-} from 'firebase/firestore'
-import { db, auth } from '../firebase/Firebase'
-import { SearchBar } from '../components/nav&search/search-bar'
-import { onAuthStateChanged } from 'firebase/auth'
-import userProfileImg from '../assets/images/nav&search/userProfileImg.png'
+import { useState, useEffect } from 'react';
+import { NavMenu } from '../components/nav&search/navigation-menu';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import Showdown from 'showdown';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '../firebase/Firebase';
+import { SearchBar } from '../components/nav&search/search-bar';
+import { onAuthStateChanged } from 'firebase/auth';
+import userProfileImg from '../assets/images/nav&search/userProfileImg.png';
 
 export const BlogPostCreator = () => {
-  const [content, setContent] = useState<string>('')
-  const converter = new Showdown.Converter()
+  const [content, setContent] = useState<string>('');
+  const [profilePic, setProfilePic] = useState<string>(userProfileImg);
+  const [userID, setUserID] = useState<string | undefined>(undefined);
+  const [search, setSearch] = useState<string>('');
 
-  const handleContentChange = (value: string) => {
-    setContent(value)
-  }
-  //converting to "markdownContent" & saving to fire-store
-  const saveContentInMarkdown = () => {
-    const markdownContent = converter.makeMarkdown(content)
-    console.log(markdownContent)
-    addAndReadDocs(markdownContent).catch((err) => {
-      console.log(err)
-    })
-  }
+  const converter = new Showdown.Converter();
 
-  //function to save in fireStore
-  async function addAndReadDocs(savedContent: string) {
+  const handleContentChange = (value: string) => setContent(value);
+
+  // Converting to markdown and saving to Firestore
+  const saveContentInMarkdown = async () => {
+    const markdownContent = converter.makeMarkdown(content);
     try {
-      const user = auth.currentUser
-      if (!user) {
-        throw new Error('User not signed in.')
-      }
+      await addAndReadDocs(markdownContent);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-      const collectionID = user.uid
+  // Function to save in Firestore
+  const addAndReadDocs = async (savedContent: string) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('User not signed in.');
 
-      const userCollectionRef = collection(db, collectionID)
+      const collectionID = user.uid;
+      const userCollectionRef = collection(db, collectionID);
       const newDocRef = await addDoc(userCollectionRef, {
         userId: user.uid,
         name: user.displayName,
         contentType: 'blogPost',
         blogPost: savedContent,
         timeStamp: serverTimestamp(),
-        date: new Date()
-      })
-      // the ID of the newly added document
-      console.log('Document written with ID:', newDocRef.id)
+        date: new Date(),
+      });
+
+      console.log('Document written with ID:', newDocRef.id);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
-  const [profilePic, setProfilePic] = useState('')
-  const [userID, setUserID] = useState<string | undefined>('')
-   const [search, setSearch] = useState('')
-
+  // Auth state listener for user profile and ID
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (typeof user?.photoURL === 'string') {
-        setProfilePic(user?.photoURL)
-      } else setProfilePic(userProfileImg)
-      setUserID(user?.uid)
-    })
-  }, [userID])
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setProfilePic(user.photoURL || userProfileImg);
+        setUserID(user.uid);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
-  //word counter
-  const wordCount = content.trim().split(/\s+/).length
+  // Word count for the blog post
+  const wordCount = content.trim().split(/\s+/).length;
 
   return (
-    <div className='flex flex-row'>
+    <div className="flex flex-row bg-gray-50 min-h-screen">
       <NavMenu />
-      <div>
+      <div className="flex flex-col w-full p-8 bg-white shadow-lg rounded-lg">
         <SearchBar profilePic={profilePic} search={search} onSearchChange={setSearch} />
+
+        <div className="mb-4 text-2xl font-semibold text-gray-800">Create a New Blog Post</div>
+
         <ReactQuill
           value={content}
           onChange={handleContentChange}
           modules={BlogPostCreator.modules}
           formats={BlogPostCreator.formats}
-          placeholder='Write your content here...'
+          placeholder="Write your content here..."
+          className="mb-4 bg-gray-100 rounded-lg min-h-[80%]"
         />
-        <div>Word Count: {wordCount}</div>
-        <button
-          onClick={() => {
-            saveContentInMarkdown()
-          }}
-        >
-          Save as Markdown
-        </button>
+
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-sm text-gray-600">Word Count: {wordCount}</div>
+
+          <button
+            onClick={() => {
+              saveContentInMarkdown().catch((err) => console.error(err)); // Handle promise rejection
+            }}
+            className="py-2 px-6 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all duration-200"
+          >
+            Save Post
+          </button>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 BlogPostCreator.modules = {
   toolbar: [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
     ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
     [{ list: 'ordered' }, { list: 'bullet' }],
-    [{ align: [] }], // Add alignment options
-    [{ color: [] }, { background: [] }], // Add text color and background color options
+    [{ align: [] }],
+    [{ color: [] }, { background: [] }],
     ['link', 'image'],
     ['clean'],
-    [{ script: 'sub' }, { script: 'super' }], // Add subscript and superscript options
-    [{ indent: '-1' }, { indent: '+1' }], // Add indentation options
-    [{ direction: 'rtl' }], // Add right-to-left text direction option
-    [{ size: ['small', false, 'large', 'huge'] }], // Add font size options
+    [{ script: 'sub' }, { script: 'super' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    [{ direction: 'rtl' }],
+    [{ size: ['small', false, 'large', 'huge'] }],
     [
       { header: 1 },
       { header: 2 },
@@ -117,16 +121,14 @@ BlogPostCreator.modules = {
       { header: 5 },
       { header: 6 },
       { header: false },
-    ], // Add multiple header sizes
-    ['video'], // Add video embedding option
-    ['code', { language: 'javascript' }], // Add code syntax highlighting for JavaScript
+    ],
+    ['video'],
+    ['code', { language: 'javascript' }],
   ],
-
   clipboard: {
-    //Add a clean clipboard to strip out unsupported formatting when pasting content
     matchVisual: false,
   },
-}
+};
 
 BlogPostCreator.formats = [
   'header',
@@ -138,16 +140,16 @@ BlogPostCreator.formats = [
   'code-block',
   'list',
   'bullet',
-  'align', //Add alignment format
+  'align',
   'color',
-  'background', //Add text color and background color formats
+  'background',
   'link',
   'image',
   'clean',
-  'script', // Add subscript and superscript formats
-  'indent', // Add indentation format
-  'direction', // Add right-to-left text direction format
-  'size', // Add font size format
-  'video', // Add video embedding format
-  'code', // Add code format
-]
+  'script',
+  'indent',
+  'direction',
+  'size',
+  'video',
+  'code',
+];

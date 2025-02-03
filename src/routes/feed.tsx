@@ -1,120 +1,112 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
-import  {NavMenu}  from '../components/nav&search/navigation-menu'
-import { SearchBar } from '../components/nav&search/search-bar'
-import { onAuthStateChanged } from 'firebase/auth'
-import { getDocs, collection, DocumentData, query, orderBy } from 'firebase/firestore'
-import { auth,db } from '../firebase/Firebase'
-import { useEffect, useState } from 'react'
-import userProfileImg from '../assets/images/nav&search/userProfileImg.png'
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { NavMenu } from '../components/nav&search/navigation-menu';
+import { SearchBar } from '../components/nav&search/search-bar';
+import { onAuthStateChanged } from 'firebase/auth';
+import { getDocs, collection, query, orderBy, DocumentData } from 'firebase/firestore';
+import { auth, db } from '../firebase/Firebase';
+import { useEffect, useState } from 'react';
+import userProfileImg from '../assets/images/nav&search/userProfileImg.png';
 import showdown from 'showdown';
 
+// Define Blog Type
+interface Blog {
+  id: string;
+  content: string;
+  timestamp: number;
+}
 
+// Define Blog Data Type
+interface BlogData extends DocumentData {
+  blogPost: string;
+  timeStamp: { toDate: () => Date };
+}
 
 export const Feed = () => {
-  const [profilePic, setProfilePic] = useState('')
-  const [userID, setUserID] = useState<string | undefined | null>()
-  const location = useLocation()
-  const [search, setSearch] = useState('')
-  const [blogs, setBlogs] = useState<string[]|null>(null)
-  const [userID2, setUserID2] = useState<string[]>([])
-  const [userName, setUserName2] = useState<string | null | undefined>('')
-  const [image, setImage] = useState<string|null|undefined>('')
-
-
+  const [profilePic, setProfilePic] = useState(userProfileImg);
+  const [userID, setUserID] = useState<string | null>(null);
+  const location = useLocation();
+  const [search, setSearch] = useState('');
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [userName, setUserName] = useState('');
+  const [image, setImage] = useState<string | null>(null);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      if (typeof user?.photoURL === 'string') {
-        setProfilePic(user?.photoURL)
-      } else setProfilePic(userProfileImg)
-      setUserID(user?.uid)
-      setUserName2(user?.displayName)
-      setImage(user?.photoURL)
-    })
+      setProfilePic(user?.photoURL || userProfileImg);
+      setUserID(user?.uid || null);
+      setUserName(user?.displayName || '');
+      setImage(user?.photoURL || null);
+    });
 
-     const documents: string[] = []
-  const IDs: string[] = []
-    async function getBlogs() {
-      if (auth.currentUser) {
-        const UserID = auth.currentUser.uid
-        const querySnapshot = await getDocs(query(collection(db, UserID), orderBy('timeStamp', 'desc')))
-        return querySnapshot
-      }
-    }
+    const fetchBlogs = async () => {
+      if (!auth.currentUser) return;
+      const userCollection = collection(db, auth.currentUser.uid);
+      const querySnapshot = await getDocs(query(userCollection, orderBy('timeStamp', 'desc')));
+      const blogPosts: Blog[] = [];
 
-    getBlogs()
-      .then((querySnapshot) => {
-        querySnapshot?.forEach((doc) => {
-          const document: DocumentData = doc.data()
-          if (typeof document.blogPost === 'string') {
-            const htmlContent = new showdown.Converter().makeHtml(document.blogPost);
-            documents.push(htmlContent);
-          } else {
-            console.error('Invalid blogPost data:', document.blogPost);
-          }
-          IDs.push(doc.id)
-        })
-        return {documents,IDs}
-        
-      }).then(({documents,IDs}) => {
-        setBlogs(documents)
-        setUserID2(IDs)
-      })
-      .catch((err) => console.log('error result:', err))
-  }, [userID])
+      querySnapshot.forEach((doc) => {
+        const data = doc.data() as BlogData;
+        if (typeof data.blogPost === 'string') {
+          blogPosts.push({
+            id: doc.id,
+            content: new showdown.Converter().makeHtml(data.blogPost),
+            timestamp: data.timeStamp.toDate().getTime(),
+          });
+        }
+      });
 
+      setBlogs(blogPosts);
+    };
+
+    fetchBlogs().catch(console.error);
+  }, []);
 
   return (
-    <div className='border grid grid-flow-col grid-cols-[6]'>
-      <div className='col-span-1'>
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar Navigation */}
+      <aside className="hidden lg:block w-1/4 bg-white shadow-lg p-5">
         <NavMenu />
-      </div>
-      <div className='col-span-5'>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6">
         <SearchBar profilePic={profilePic} search={search} onSearchChange={setSearch} />
-        <main className='m-[1rem] border p-5'>
-          <div className='flex flex-row items-center justify-between'>
-            <h1>
-              FEED {search}
-              <p>Explore different content you’d love </p>
-            </h1>
+
+        <div className="bg-white shadow-lg rounded-lg p-6 mt-4">
+          <div className="flex justify-between items-center border-b pb-4">
+            <h1 className="text-2xl font-semibold text-gray-800">Feed</h1>
             <Link to='/post'>
-              <button type='button' className='bg-[#543EE0] text-white'>
-                Post a content
-              </button>
+              <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">Post Content</button>
             </Link>
           </div>
 
-          <nav className='flex flex-row px-[1rem] items-center justify-between mt-[2rem] border'>
-            <Link to='/feed'>
-              <h2>For you</h2>
-              {location.pathname === '/feed' ? (
-                <div className='h-[4px] w-[100%] bg-[#543EE0]'></div>
-              ) : (
-                <div></div>
-              )}
-            </Link>
-            <Link to='/feed/featured'>
-              <h2>Featured</h2>
-              {location.pathname === '/feed/featured' ? (
-                <div className='h-[4px] w-[100%] bg-[#543EE0]'></div>
-              ) : (
-                <div></div>
-              )}
-            </Link>
-            <Link to='/feed/recent'>
-              <h2>Recent</h2>
-              {location.pathname === '/feed/recent' ? (
-                <div className='h-[4px] w-[100%] bg-[#543EE0]'></div>
-              ) : (
-                <div></div>
-              )}
-            </Link>
+          {/* Navigation Tabs */}
+          <nav className="flex justify-between mt-6 border-b pb-2">
+            {['/feed', '/feed/featured', '/feed/recent'].map((path, index) => (
+              <Link key={index} to={path} className="relative px-4 py-2 text-gray-600 hover:text-indigo-600">
+                <h2 className="font-medium capitalize">{path.split('/')[2] || 'For You'}</h2>
+                {location.pathname === path && <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600" />}
+              </Link>
+            ))}
           </nav>
-          <div className='border p-4'>
-            <Outlet context={{profilePic, userID2, blogs,userName, image}} />
+
+          {/* Blog Feed */}
+          <div className="mt-6 grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {blogs.map((blog) => (
+              <div key={blog.id} className="bg-white rounded-lg shadow-md p-4 transition transform hover:-translate-y-1 hover:shadow-lg">
+                <div className="text-gray-700 text-sm mb-2">By {userName || 'Anonymous'}</div>
+                <div dangerouslySetInnerHTML={{ __html: blog.content }} className="text-gray-800" />
+                <div className="text-gray-500 text-xs mt-4">{new Date(blog.timestamp).toLocaleString()}</div>
+              </div>
+            ))}
           </div>
-        </main>
+
+          {/* Content Outlet */}
+          <div className="mt-6">
+            <Outlet context={{ profilePic, blogs, userName, image }} />
+          </div>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
